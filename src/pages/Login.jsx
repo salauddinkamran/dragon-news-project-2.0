@@ -1,21 +1,28 @@
 import React, { use, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { AuthContext } from "../contexts/AuthContext/AuthContext";
 
 const Login = () => {
   const { signInUser } = use(AuthContext);
   const [showPassword, setShowPassword] = useState("");
+  const [error, setError] = useState("");
+  const location = useLocation();
+  console.log(location);
+  const navigate = useNavigate();
   const handleSingInUser = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
+    setError("");
     signInUser(email, password)
       .then((res) => {
         console.log(res.user);
+        navigate(`${location.state ? location.state : "/"}`);
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
+        setError(error.code);
       });
   };
   return (
@@ -35,6 +42,7 @@ const Login = () => {
                 name="email"
                 className="input bg-base-200"
                 placeholder="Email"
+                required
               />
             </div>
             <div>
@@ -47,11 +55,14 @@ const Login = () => {
                   name="password"
                   className="input bg-base-200 outline-0"
                   placeholder="Password"
+                  required
                 />
-                <button onClick={()=> setShowPassword(!showPassword)} type="button" className="btn btn-xs absolute top-2 right-3">
-                  {
-                    showPassword ? <FaEyeSlash /> : <FaEye />
-                  }
+                <button
+                  onClick={() => setShowPassword(!showPassword)}
+                  type="button"
+                  className="btn btn-xs absolute top-2 right-3"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
             </div>
@@ -59,6 +70,7 @@ const Login = () => {
             <div>
               <a className="link link-hover">Forgot password?</a>
             </div>
+            {error && <p className="text-red-400 text-xs">{error}</p>}
             <button className="btn btn-neutral mt-4">Login</button>
           </fieldset>
           <p className="font-semibold pt-3">

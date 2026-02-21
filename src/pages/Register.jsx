@@ -6,20 +6,33 @@ import { AuthContext } from "../contexts/AuthContext/AuthContext";
 const Register = () => {
   const { createUser } = use(AuthContext);
   const [showPassword, setShowPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const handleRegister = (event) => {
     event.preventDefault();
     const name = event.target.name.value;
     const photo = event.target.photo.value;
     const email = event.target.email.value;
     const password = event.target.password.value;
-
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$/;
+    if (!passwordRegex.test(password)) {
+      setError(
+        "Password must be 6+ chars with uppercase, lowercase, number & special character."
+      );
+      return;
+    }
     console.log({ name, photo, email, password });
+    setSuccess(false);
+    setError("");
     createUser(email, password)
       .then((res) => {
         console.log(res.user);
+        setSuccess(true);
       })
       .catch((error) => {
         console.log(error);
+        setError(error.code);
       });
   };
   return (
@@ -88,9 +101,12 @@ const Register = () => {
               </div>
             </div>
 
-            <div>
-              <a className="link link-hover">Forgot password?</a>
-            </div>
+            {success && (
+              <p className="text-green-400 text-xs">
+                Account create successfully!
+              </p>
+            )}
+            {error && <p className="text-red-400 text-xs">{error}</p>}
             <button className="btn btn-neutral mt-4">Login</button>
           </fieldset>
           <p className="font-semibold pt-3">
